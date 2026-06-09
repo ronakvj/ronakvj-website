@@ -1,0 +1,393 @@
+@import "tailwindcss";
+
+@font-face {
+  font-family: "VTF Justina HUM";
+  src: url("./assets/fonts/vtf-justina/VTFJustinaHUM-Thin.otf") format("opentype");
+  font-display: swap;
+  font-style: normal;
+  font-weight: 100;
+}
+
+@font-face {
+  font-family: "VTF Justina HUM";
+  src: url("./assets/fonts/vtf-justina/VTFJustinaHUM-UltraLight.otf") format("opentype");
+  font-display: swap;
+  font-style: normal;
+  font-weight: 200;
+}
+
+@font-face {
+  font-family: "VTF Justina HUM";
+  src: url("./assets/fonts/vtf-justina/VTFJustinaHUM-Light.otf") format("opentype");
+  font-display: swap;
+  font-style: normal;
+  font-weight: 300;
+}
+
+@font-face {
+  font-family: "VTF Justina HUM";
+  src: url("./assets/fonts/vtf-justina/VTFJustinaHUM-Regular.otf") format("opentype");
+  font-display: swap;
+  font-style: normal;
+  font-weight: 400;
+}
+
+@font-face {
+  font-family: "VTF Justina HUM";
+  src: url("./assets/fonts/vtf-justina/VTFJustinaHUM-SemiBold.otf") format("opentype");
+  font-display: swap;
+  font-style: normal;
+  font-weight: 600;
+}
+
+@font-face {
+  font-family: "VTF Justina HUM";
+  src: url("./assets/fonts/vtf-justina/VTFJustinaHUM-Bold.otf") format("opentype");
+  font-display: swap;
+  font-style: normal;
+  font-weight: 700;
+}
+
+@font-face {
+  font-family: "VTF Justina HUM";
+  src: url("./assets/fonts/vtf-justina/VTFJustinaHUM-UltraBold.otf") format("opentype");
+  font-display: swap;
+  font-style: normal;
+  font-weight: 800;
+}
+
+@font-face {
+  font-family: "VTF Justina HUM";
+  src: url("./assets/fonts/vtf-justina/VTFJustinaHUM-Black.otf") format("opentype");
+  font-display: swap;
+  font-style: normal;
+  font-weight: 900;
+}
+
+@font-face {
+  font-family: "VTF Justina GEO";
+  src: url("./assets/fonts/vtf-justina/VTFJustinaGEO-Regular.otf") format("opentype");
+  font-display: swap;
+  font-style: normal;
+  font-weight: 400;
+}
+
+@font-face {
+  font-family: "VTF Justina GEO";
+  src: url("./assets/fonts/vtf-justina/VTFJustinaGEO-SemiBold.otf") format("opentype");
+  font-display: swap;
+  font-style: normal;
+  font-weight: 600;
+}
+
+@font-face {
+  font-family: "VTF Justina GEO";
+  src: url("./assets/fonts/vtf-justina/VTFJustinaGEO-Bold.otf") format("opentype");
+  font-display: swap;
+  font-style: normal;
+  font-weight: 700;
+}
+
+@font-face {
+  font-family: "VTF Justina GEO";
+  src: url("./assets/fonts/vtf-justina/VTFJustinaGEO-Black.otf") format("opentype");
+  font-display: swap;
+  font-style: normal;
+  font-weight: 900;
+}
+
+:root {
+  background: #050505;
+  color: #ffffff;
+  --font-primary: "VTF Justina HUM", "VTF Justina GEO", Inter, Roboto, Arial, sans-serif;
+  --font-display: "VTF Justina GEO", "VTF Justina HUM", Inter, Roboto, Arial, sans-serif;
+  font-family: var(--font-primary);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  background: #050505;
+  scroll-behavior: smooth;
+}
+
+html[data-theme="light"] {
+  background: #f7f5ef;
+  color-scheme: light;
+}
+
+body {
+  background: #050505;
+  font-family: var(--font-primary);
+  margin: 0;
+  min-width: 320px;
+}
+
+.intro-tubes-gate {
+  background: #000000 !important;
+  cursor: pointer;
+  font-family: var(--font-primary);
+  overflow: hidden;
+  touch-action: none;
+}
+
+.intro-enter-prompt {
+  background: transparent;
+  font-family: var(--font-primary);
+  font-weight: 400;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.intro-tubes-canvas {
+  background: #000000;
+  display: block;
+  height: 100vh;
+  inset: 0;
+  position: fixed;
+  width: 100vw;
+  z-index: 0;
+}
+
+html[data-theme="light"] body {
+  background: #f7f5ef;
+}
+
+button,
+a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+button,
+input,
+textarea {
+  color: inherit;
+  font: inherit;
+}
+
+.site-root {
+  background-color: #050505;
+  color: #ffffff;
+  font-family: var(--font-primary);
+  transition: background-color 220ms ease, color 220ms ease;
+}
+
+.site-root h1,
+.site-root h2,
+.site-root h3,
+.site-root h4,
+.site-root nav {
+  font-family: var(--font-display);
+}
+
+.site-root[data-theme="light"] {
+  background-color: #f7f5ef;
+  color: #111827;
+}
+
+.brand-logo {
+  display: block;
+  transition: filter 220ms ease;
+}
+
+.site-root[data-theme="light"] .brand-logo {
+  filter: invert(1);
+}
+
+.site-root[data-theme="light"] .text-white,
+.site-root[data-theme="light"] [class~="hover:text-white"]:hover {
+  color: #111827;
+}
+
+.site-root[data-theme="light"] [class~="text-black"] {
+  color: #111827;
+}
+
+.site-root[data-theme="light"] [class~="bg-white"][class~="text-black"] {
+  color: #ffffff;
+}
+
+.site-root[data-theme="light"] [class~="text-white/75"],
+.site-root[data-theme="light"] [class~="text-white/72"],
+.site-root[data-theme="light"] [class~="text-white/70"],
+.site-root[data-theme="light"] [class~="text-white/68"],
+.site-root[data-theme="light"] [class~="text-white/64"],
+.site-root[data-theme="light"] [class~="text-white/62"],
+.site-root[data-theme="light"] [class~="text-white/60"],
+.site-root[data-theme="light"] [class~="text-white/[0.75]"],
+.site-root[data-theme="light"] [class~="text-white/[0.72]"],
+.site-root[data-theme="light"] [class~="text-white/[0.70]"],
+.site-root[data-theme="light"] [class~="text-white/[0.68]"],
+.site-root[data-theme="light"] [class~="text-white/[0.64]"],
+.site-root[data-theme="light"] [class~="text-white/[0.62]"],
+.site-root[data-theme="light"] [class~="text-white/[0.60]"] {
+  color: #374151;
+}
+
+.site-root[data-theme="light"] [class~="text-white/58"],
+.site-root[data-theme="light"] [class~="text-white/55"],
+.site-root[data-theme="light"] [class~="text-white/50"],
+.site-root[data-theme="light"] [class~="text-white/45"],
+.site-root[data-theme="light"] [class~="text-white/42"],
+.site-root[data-theme="light"] [class~="text-white/38"],
+.site-root[data-theme="light"] [class~="text-white/35"],
+.site-root[data-theme="light"] [class~="text-white/25"],
+.site-root[data-theme="light"] [class~="text-white/[0.58]"],
+.site-root[data-theme="light"] [class~="text-white/[0.55]"],
+.site-root[data-theme="light"] [class~="text-white/[0.50]"],
+.site-root[data-theme="light"] [class~="text-white/[0.45]"],
+.site-root[data-theme="light"] [class~="text-white/[0.42]"],
+.site-root[data-theme="light"] [class~="text-white/[0.38]"],
+.site-root[data-theme="light"] [class~="text-white/[0.35]"],
+.site-root[data-theme="light"] [class~="text-white/[0.25]"] {
+  color: #6b7280;
+}
+
+.site-root[data-theme="light"] [class~="bg-[#050505]"],
+.site-root[data-theme="light"] [class~="bg-[#050505]/80"] {
+  background-color: rgba(247, 245, 239, 0.88);
+}
+
+.site-root[data-theme="light"] [class~="bg-[#080808]"] {
+  background-color: #ffffff;
+}
+
+.site-root[data-theme="light"] [class~="bg-black/75"] {
+  background-color: rgba(15, 23, 42, 0.28);
+}
+
+.site-root[data-theme="light"] [class~="bg-black/70"] {
+  background-color: rgba(15, 23, 42, 0.26);
+}
+
+.site-root[data-theme="light"] [class~="bg-black/55"],
+.site-root[data-theme="light"] [class~="bg-black/35"],
+.site-root[data-theme="light"] [class~="bg-black/30"] {
+  background-color: rgba(255, 255, 255, 0.72);
+}
+
+.site-root[data-theme="light"] [class~="bg-white"] {
+  background-color: #111827;
+}
+
+.site-root[data-theme="light"] [class~="bg-white/[0.035]"],
+.site-root[data-theme="light"] [class~="bg-white/[0.03]"] {
+  background-color: rgba(255, 255, 255, 0.9);
+}
+
+.site-root[data-theme="light"] [class~="bg-white/10"],
+.site-root[data-theme="light"] [class~="bg-white/5"] {
+  background-color: rgba(17, 24, 39, 0.06);
+}
+
+.site-root[data-theme="light"] [class~="hover:bg-white/5"]:hover,
+.site-root[data-theme="light"] [class~="hover:bg-white/[0.05]"]:hover,
+.site-root[data-theme="light"] [class~="hover:bg-white/[0.06]"]:hover {
+  background-color: rgba(17, 24, 39, 0.07);
+}
+
+.site-root[data-theme="light"] [class~="border-white/50"],
+.site-root[data-theme="light"] [class~="border-white/30"],
+.site-root[data-theme="light"] [class~="border-white/20"],
+.site-root[data-theme="light"] [class~="border-white/10"],
+.site-root[data-theme="light"] [class~="border-white/5"],
+.site-root[data-theme="light"] [class~="border-white/[0.10]"] {
+  border-color: rgba(17, 24, 39, 0.12);
+}
+
+.site-root[data-theme="light"] [class~="hover:border-white/50"]:hover,
+.site-root[data-theme="light"] [class~="hover:border-white/30"]:hover {
+  border-color: rgba(17, 24, 39, 0.32);
+}
+
+.site-root[data-theme="light"] [class~="from-[#050505]"] {
+  --tw-gradient-from: #f7f5ef var(--tw-gradient-from-position);
+  --tw-gradient-to: rgba(247, 245, 239, 0) var(--tw-gradient-to-position);
+}
+
+.theme-yin-yang {
+  align-items: center;
+  background: rgba(255, 255, 255, 0.055);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 999px;
+  box-shadow: 0 12px 34px rgba(0, 0, 0, 0.25);
+  display: inline-flex;
+  gap: 0;
+  height: 42px;
+  overflow: hidden;
+  padding: 4px;
+}
+
+.theme-yin-yang-option {
+  align-items: center;
+  border: 0;
+  cursor: pointer;
+  display: inline-flex;
+  height: 34px;
+  justify-content: center;
+  opacity: 0.58;
+  padding: 0;
+  transition: opacity 180ms ease, transform 180ms ease, box-shadow 180ms ease;
+  width: 42px;
+}
+
+.theme-yin-yang-option:hover,
+.theme-yin-yang-option.is-active {
+  opacity: 1;
+}
+
+.theme-yin-yang-option.is-active {
+  box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.95);
+  position: relative;
+  z-index: 1;
+}
+
+.theme-yin-yang-option:focus-visible {
+  outline: 2px solid #f59e0b;
+  outline-offset: 2px;
+}
+
+.theme-yin-yang-dark {
+  background: #050505;
+  border-radius: 999px 4px 4px 999px;
+}
+
+.theme-yin-yang-light {
+  background: #ffffff;
+  border-radius: 4px 999px 999px 4px;
+}
+
+.theme-yin-yang-dot {
+  border-radius: 999px;
+  display: block;
+  height: 11px;
+  width: 11px;
+}
+
+.theme-yin-yang-dark .theme-yin-yang-dot {
+  background: #ffffff;
+  box-shadow: 0 0 12px rgba(255, 255, 255, 0.48);
+}
+
+.theme-yin-yang-light .theme-yin-yang-dot {
+  background: #050505;
+  box-shadow: 0 0 12px rgba(5, 5, 5, 0.22);
+}
+
+.site-root[data-theme="light"] .theme-yin-yang {
+  background: rgba(255, 255, 255, 0.92);
+  border-color: rgba(17, 24, 39, 0.12);
+  box-shadow: 0 10px 30px rgba(17, 24, 39, 0.08);
+}
+
+.site-root[data-theme="light"] .theme-yin-yang-dark {
+  background: #050505;
+}
+
+.site-root[data-theme="light"] .theme-yin-yang-light {
+  background: #ffffff;
+}

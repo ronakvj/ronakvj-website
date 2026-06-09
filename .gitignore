@@ -1,0 +1,13 @@
+node_modules
+dist
+.npm-cache
+.DS_Store
+src/App 2.jsx
+checkpoints/
+Ronakvj-Linearwebsite-earlier-preview-*/
+Ronakvj-Linearwebsite-github-integrated/
+*.zip
+src/assets/about/
+src/assets/bombay-boston-bike/
+src/assets/school-logos/
+src/assets/rj-logo.png
