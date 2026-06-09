@@ -497,9 +497,10 @@ function Header({ theme, onThemeChange }) {
   const logoHeight = (viewportWidth >= 768 ? 56 : 48) - (viewportWidth >= 768 ? 20 : 14) * easedProgress;
   const verticalPadding = 16 - 6 * easedProgress;
   const horizontalPadding = 24 - 8 * easedProgress;
-  const backgroundOpacity = 0.8 + 0.14 * easedProgress;
-  const borderOpacity = 0.1 + 0.12 * easedProgress;
+  const backgroundOpacity = 0.005 + 0.035 * easedProgress;
+  const borderOpacity = 0.22 + 0.16 * easedProgress;
   const navStyle = {
+    "--header-glass-strength": easedProgress,
     top: `${16 * easedProgress}px`,
     left: `${left}px`,
     width: `${width}px`,
@@ -508,21 +509,21 @@ function Header({ theme, onThemeChange }) {
     padding: `${verticalPadding}px ${horizontalPadding}px`,
     borderColor:
       theme === "light"
-        ? `rgba(17, 24, 39, ${0.12 + 0.12 * easedProgress})`
+        ? `rgba(255, 255, 255, ${0.42 + 0.18 * easedProgress})`
         : `rgba(255, 255, 255, ${borderOpacity})`,
     backgroundColor:
       theme === "light"
-        ? `rgba(247, 245, 239, ${0.86 + 0.08 * easedProgress})`
+        ? `rgba(255, 255, 255, ${0.02 + 0.05 * easedProgress})`
         : `rgba(5, 5, 5, ${backgroundOpacity})`,
     boxShadow:
       easedProgress > 0.02
-        ? `0 ${12 + 18 * easedProgress}px ${28 + 34 * easedProgress}px rgba(0, 0, 0, ${0.18 + 0.2 * easedProgress})`
+        ? `0 ${10 + 14 * easedProgress}px ${24 + 26 * easedProgress}px rgba(0, 0, 0, ${0.1 + 0.08 * easedProgress}), inset 0 1px 0 rgba(255, 255, 255, ${0.22 + 0.16 * easedProgress}), inset 0 -1px 0 rgba(255, 255, 255, ${0.05 + 0.06 * easedProgress})`
         : "none",
   };
 
   return (
     <motion.nav
-      className="fixed z-50 flex items-center justify-between border backdrop-blur-md"
+      className="header-liquid-glass fixed z-50 flex items-center justify-between border backdrop-blur-md"
       style={navStyle}
       data-header-progress={progress.toFixed(3)}
     >
@@ -998,13 +999,6 @@ function RolePanel({ role, onSelectProject }) {
   const stage = getStageForRole(role);
   const RoleIcon = getRoleIcon(role);
   const hasGallery = Array.isArray(role.gallery) && role.gallery.length > 0;
-  const roleMeta = [
-    ["Timeline", role.timeline],
-    ["Context", role.context],
-    ["Source", role.sourceReference],
-    ["Confidence", role.confidence],
-    ["Needs clarity", role.gaps],
-  ].filter(([, value]) => value);
 
   return (
     <motion.div
@@ -1032,20 +1026,9 @@ function RolePanel({ role, onSelectProject }) {
         </div>
       )}
 
-      <div className="mt-8 grid gap-6 xl:grid-cols-2">
+      <div className="mt-8">
         <div>
-          <p className="text-xs uppercase tracking-[0.22em] text-white/35">Details</p>
-          <div className="mt-4 flex flex-wrap gap-2">
-            {role.details.map((detail) => (
-              <span key={detail} className="rounded-full border border-white/10 bg-black/35 px-4 py-2 text-sm text-white/68">
-                {detail}
-              </span>
-            ))}
-          </div>
-        </div>
-
-        <div>
-          <p className="text-xs uppercase tracking-[0.22em] text-white/35">Method</p>
+          <p className="text-xs uppercase tracking-[0.22em] text-white/35">Key Competencies and Skillsets</p>
           <div className="mt-4 flex flex-wrap gap-2">
             {role.method.map((step) => (
               <span key={step} className="rounded-full border border-white/10 bg-black/35 px-4 py-2 text-sm text-white/68">
@@ -1055,17 +1038,6 @@ function RolePanel({ role, onSelectProject }) {
           </div>
         </div>
       </div>
-
-      {roleMeta.length > 0 && (
-        <div className="mt-8 grid gap-3 md:grid-cols-2">
-          {roleMeta.map(([label, value]) => (
-            <div key={label} className="rounded-2xl border border-white/10 bg-black/30 p-4">
-              <p className="text-[10px] uppercase tracking-[0.22em] text-white/35">{label}</p>
-              <p className="mt-2 text-sm leading-6 text-white/62">{value}</p>
-            </div>
-          ))}
-        </div>
-      )}
 
       <div className="mt-8">
         <p className="text-xs uppercase tracking-[0.22em] text-white/35">{role.projectsTitle}</p>
@@ -1096,11 +1068,6 @@ function RolePanel({ role, onSelectProject }) {
               <h4 className="mt-5 text-lg leading-6">{project.title}</h4>
               <p className="mt-4 text-xs leading-6 text-white/45">{project.line}</p>
               {project.type === "class" && <ProfessorMini professor={project.professor} />}
-              {project.confidence && (
-                <p className="mt-4 text-[10px] uppercase tracking-[0.2em] text-white/35">
-                  {project.confidence} confidence
-                </p>
-              )}
             </button>
           ))}
         </div>
@@ -1338,17 +1305,11 @@ function ProjectDrawer({ item, onClose }) {
   const hasProfessor = item.type === "class" || Boolean(item.professor);
   const hasSchoolLogo = item.type === "class" && Boolean(item.schoolLogo);
   const storyBlocks = [
-    ["Context", item.context],
     ["My Role", item.myRole],
     ["Work", item.work],
     ["Stakeholders", item.stakeholders],
     ["Impact", item.impact],
-    ["Theory / Methods", item.theory],
-  ].filter(([, value]) => value);
-  const notes = [
-    ["Source", item.sourceReference],
-    ["Confidence", item.confidence],
-    ["Needs clarity", item.gaps],
+    ["Key Competencies and Skillsets", item.theory],
   ].filter(([, value]) => value);
   const mediaUrl = typeof item.media === "string" ? item.media : "";
   const youtubeEmbedUrl = getYouTubeEmbedUrl(mediaUrl);
@@ -1445,19 +1406,6 @@ function ProjectDrawer({ item, onClose }) {
             {hasProfessor && <ProfessorBlock professor={item.professor} />}
 
             <ResourceLinks links={item.resourceLinks} />
-
-            {notes.length > 0 && (
-              <div className="mt-8 rounded-3xl border border-white/10 bg-black/30 p-6">
-                <p className="text-sm uppercase tracking-[0.2em] text-white/35">Spreadsheet Notes</p>
-                <div className="mt-5 grid gap-4 text-sm leading-7 text-white/58">
-                  {notes.map(([label, value]) => (
-                    <p key={label}>
-                      <span className="text-white">{label}:</span> {value}
-                    </p>
-                  ))}
-                </div>
-              </div>
-            )}
 
             <div className="mt-8 rounded-3xl border border-white/10 bg-white/[0.035] p-6">
               <p className="text-sm uppercase tracking-[0.2em] text-white/35">How this fits the line</p>
