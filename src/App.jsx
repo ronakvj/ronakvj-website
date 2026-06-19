@@ -1,11 +1,12 @@
 import React, { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import {
-  ArrowRight,
   BookOpen,
   BrainCircuit,
+  Bot,
   ChevronRight,
   Compass,
+  DraftingCompass,
   ExternalLink,
   GraduationCap,
   Hammer,
@@ -13,10 +14,12 @@ import {
   Lightbulb,
   Mail,
   Menu,
+  MessageSquareQuote,
   Network,
   Orbit,
   PenTool,
   Play,
+  ScrollText,
   Sparkles,
   Wrench,
   X,
@@ -331,17 +334,17 @@ function getRole(id) {
     id,
     title: base.title || titleFromId(id),
     stage: stage.id,
-    opening: base.opening || "This role is ready for final book-backed projects, examples, and reflections.",
+    opening: base.opening || "Ready for final projects, examples, and reflections.",
     details: base.details || [stage.title, "Projects", "Impact", "Reflection"],
     projectsTitle: base.projectsTitle || (stage.id === "roots" ? "Formative Scenes" : "Definitive Projects"),
     projects: base.projects || [
-      { title: "Project or Scene 1", line: "Add a book-backed project, scene, or initiative here." },
-      { title: "Project or Scene 2", line: "Add stakeholders, role, and scale here." },
-      { title: "Project or Scene 3", line: "Add related chapter or story here." },
-      { title: "Project or Scene 4", line: "Add impact and learning here." },
+      { title: "Project or Scene 1", line: "Add a project, scene, or initiative here." },
+      { title: "Project or Scene 2", line: "Add stakeholders, role, and scale." },
+      { title: "Project or Scene 3", line: "Add the related chapter or story." },
+      { title: "Project or Scene 4", line: "Add impact and learning." },
     ],
     method: base.method || ["Discover", "Design", "Build", "Scale", "Reflect"],
-    reflection: base.reflection || "This section carries the distilled lesson from the role.",
+    reflection: base.reflection || "The distilled lesson from this role.",
   });
 }
 
@@ -499,6 +502,7 @@ function Header({ theme, onThemeChange }) {
   const horizontalPadding = 24 - 8 * easedProgress;
   const backgroundOpacity = 0.005 + 0.035 * easedProgress;
   const borderOpacity = 0.22 + 0.16 * easedProgress;
+  const themeToggleReady = progress >= 0.98;
   const navStyle = {
     "--header-glass-strength": easedProgress,
     top: `${16 * easedProgress}px`,
@@ -541,7 +545,20 @@ function Header({ theme, onThemeChange }) {
             </button>
           ))}
         </div>
-        <ThemeToggle theme={theme} onThemeChange={onThemeChange} />
+        <AnimatePresence initial={false}>
+          {themeToggleReady && (
+            <motion.div
+              key="theme-toggle"
+              initial={{ opacity: 0, scale: 0.86, width: 0 }}
+              animate={{ opacity: 1, scale: 1, width: "auto" }}
+              exit={{ opacity: 0, scale: 0.86, width: 0 }}
+              transition={{ duration: 0.22, ease: "easeOut" }}
+              className="overflow-hidden"
+            >
+              <ThemeToggle theme={theme} onThemeChange={onThemeChange} />
+            </motion.div>
+          )}
+        </AnimatePresence>
         <button
           type="button"
           onClick={() => setMobileMenuOpen((open) => !open)}
@@ -602,19 +619,19 @@ function About() {
             <div className="space-y-6 text-lg leading-9 text-white/76">
               <p>I build systems that survive, thrive, scale, and matter.</p>
               <p>
-                My work sits at the intersection of strategy, execution, and first-principles thinking, focused on solving complex problems across innovation, education, applied AI, future of work, and entrepreneurship.
+                My work sits at the intersection of strategy, execution, and first-principles thinking across innovation, education, applied AI, future of work, and entrepreneurship.
               </p>
               <p>
                 I thrive in high-ambiguity environments that demand critical thinking, adaptability, and cross-functional leadership. Over the past decade, I have built programs and ecosystems across government, startups, and global academic settings.
               </p>
               <p>
-                I began by fostering innovative and entrepreneurial mindsets in young people, and later became the youngest member of the founding team of India's apex innovation mission at NITI Aayog, Government of India. In that role, I helped build three core pillars of innovation culture at scale: one of the world's largest school innovation ecosystems through 10,000 Atal Tinkering Labs, a nationwide movement of local champions through thousands of Mentors of Change, and a national push to make innovation and entrepreneurship accessible across India's 22 scheduled languages.
+                I began by fostering innovative and entrepreneurial mindsets in young people, then became the youngest member of the founding team of India's apex innovation mission at NITI Aayog, Government of India. There, I helped build three pillars of innovation culture: 10,000 Atal Tinkering Labs, thousands of Mentors of Change, and a national push to make innovation and entrepreneurship accessible across India's 22 scheduled languages.
               </p>
               <p>
-                The work taught me how to operate at scale, align stakeholders, make decisions with incomplete information, and turn bold ideas into institutional reality. My thinking is shaped by lived implementation experience and strengthened by Harvard and MIT, where I explored systems thinking, disruptive innovation, and economic transformation.
+                The work taught me how to operate at scale, align stakeholders, decide with incomplete information, and turn bold ideas into institutional reality. My thinking is shaped by lived implementation experience and strengthened by Harvard and MIT, where I explored systems thinking, disruptive innovation, and economic transformation.
               </p>
               <p>
-                Today, I advise and build across innovation strategy, ecosystem design, education, applied AI, workforce transformation, and entrepreneurship. I currently serve as the youngest Senior Fellow in the Viksit Bharat programme and am writing a major work on India's innovation ecosystem and the future of institution-building in emerging economies.
+                Today, I advise and build across innovation strategy, ecosystem design, education, applied AI, workforce transformation, and entrepreneurship. I serve as the youngest Senior Fellow in the Viksit Bharat programme and am writing a major work on India's innovation ecosystem and institution-building in emerging economies.
               </p>
             </div>
           </div>
@@ -628,150 +645,164 @@ function WhatIDo() {
   const items = [
     {
       id: "ecosystem-design",
-      title: "Innovation Ecosystem Design",
-      text: "Designing the conditions, partnerships, rituals, and platforms that help people create at scale.",
+      title: "Innovation Policy Ideation",
+      text: "Framing policy ideas, adoption pathways, and institutional levers for innovation systems.",
       color: "#7F00FF",
-      branches: ["Institutional strategy", "Partner networks", "Innovation labs", "Mentor and maker communities"],
-      method: ["Map actors", "Find leverage", "Design incentives", "Build shared rhythm"],
+      icon: ScrollText,
+      branches: ["Innovating Policy Strategy", "Navigating Institutional Levers", "Designing Policy Implementation", "Building Systems and Missions"],
       impact:
-        "I shape ecosystems where schools, government, industry, mentors, and learners can move in one coordinated direction.",
+        "I help leaders turn field signals into policy ideas that can move through institutions.",
     },
     {
       id: "program-architecture",
-      title: "Program Architecture and Implementation",
-      text: "Turning ambitious ideas into operating programs with clear journeys, roles, timelines, and outcomes.",
+      title: "Program Design & Strategy",
+      text: "Designing programs that move from purpose to delivery, evidence, and scale.",
       color: "#0197F6",
-      branches: ["Program blueprints", "Delivery systems", "Stakeholder operations", "Outcome and showcase design"],
-      method: ["Clarify purpose", "Sequence experiences", "Align teams", "Deliver and adapt"],
+      icon: DraftingCompass,
+      branches: ["Program Architecture", "Theory of Change", "Capacity Building", "Monitoring & Evaluation"],
       impact:
-        "I translate strategy into programs that can actually run, scale, and produce visible evidence of learning or change.",
+        "I translate strategy into programs that can run, scale, and show visible evidence of change.",
     },
     {
       id: "future-skills",
-      title: "AI, Tinkering, and Future Skills Education",
-      text: "Building hands-on learning pathways where learners use emerging technology with curiosity, agency, and responsibility.",
+      title: "Education & Future of Work",
+      text: "Building learning pathways for AI, tinkering, STEM, and workforce transformation.",
       color: "#8EE968",
-      branches: ["AI literacy", "Tinkering pedagogy", "STEM learning journeys", "Portfolio-ready projects"],
-      method: ["Make it tangible", "Prototype early", "Reflect publicly", "Connect to real problems"],
+      icon: Bot,
+      branches: ["STEM and AI Education", "Learning Design", "Hackathon Mentoring", "Future of Work & Jobs"],
       impact:
-        "I help learners move from exposure to capability by making future skills practical, creative, and visible.",
+        "I help learners move from exposure to capability by making future skills practical and visible.",
     },
     {
       id: "policy-storytelling",
-      title: "Policy Storytelling and Impact Narratives",
-      text: "Turning field experience, evidence, and public purpose into stories that leaders, institutions, and communities can use.",
+      title: "Narrative Storytelling",
+      text: "Turning field experience and evidence into stories that travel across policy, institutions, and public imagination.",
       color: "#FE9920",
-      branches: ["Policy narratives", "Impact documentation", "Book and essay frameworks", "Public communication"],
-      method: ["Listen deeply", "Find the pattern", "Frame the stakes", "Make the story travel"],
+      icon: MessageSquareQuote,
+      branches: ["Policy Narratives", "Storytelling with Data", "Public Speaking & Writing", "Thought Leadership"],
       impact:
-        "I create narratives that help complex work become understandable, credible, and useful for decision-making.",
+        "I create narratives that make complex work understandable, credible, and useful.",
     },
   ];
-  const [activeItemId, setActiveItemId] = useState(null);
-  const activeItem = items.find((item) => item.id === activeItemId) || null;
+  const [activeItemId, setActiveItemId] = useState(items[0].id);
+  const [autoRotate, setAutoRotate] = useState(true);
+  const activeItem = items.find((item) => item.id === activeItemId) || items[0];
+
+  useEffect(() => {
+    if (!autoRotate) return undefined;
+
+    const timer = window.setInterval(() => {
+      setActiveItemId((current) => {
+        const currentIndex = items.findIndex((item) => item.id === current);
+        const nextIndex = currentIndex < 0 ? 0 : (currentIndex + 1) % items.length;
+        return items[nextIndex].id;
+      });
+    }, 4200);
+
+    return () => window.clearInterval(timer);
+  }, [autoRotate]);
+
+  const selectItem = (itemId) => {
+    setAutoRotate(false);
+    setActiveItemId(itemId);
+  };
 
   return (
     <section id="work" className="border-t border-white/10 px-6 py-24 md:px-12 lg:px-20">
       <p className="text-[10px] uppercase tracking-[0.35em] text-white/35">What I Do</p>
-      <h2 className="mt-4 text-5xl leading-tight md:text-7xl">Design. Build. Scale. Tell.</h2>
+      <h2 className="mt-4 text-5xl leading-tight md:text-7xl">Policy. Programs. Education. Stories.</h2>
 
-      <div className="mt-12 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        {items.map((item, index) => {
-          const itemIsActive = activeItemId === item.id;
+      <FocusAreaPill items={items} activeItemId={activeItemId} onSelectItem={selectItem} />
 
-          return (
-            <button
-              key={item.id}
-              type="button"
-              onClick={() => setActiveItemId((current) => (current === item.id ? null : item.id))}
-              className={`group rounded-3xl border bg-white/[0.035] p-6 text-left transition hover:-translate-y-1 hover:bg-white/[0.06] ${
-                itemIsActive ? "border-white/30" : "border-white/10"
-              }`}
-              style={{ boxShadow: itemIsActive ? `0 0 32px ${item.color}22` : "none" }}
-              aria-expanded={itemIsActive}
-              aria-controls={`${item.id}-focus-area`}
-            >
-              <div className="flex items-center justify-between gap-4">
-                <span className="text-[10px] uppercase tracking-[0.24em] text-white/35">{String(index + 1).padStart(2, "0")}</span>
-                <span className="flex h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-black/30 transition group-hover:translate-x-1">
-                  <ArrowRight className={`h-4 w-4 transition ${itemIsActive ? "rotate-90" : ""}`} style={{ color: item.color }} />
-                </span>
-              </div>
-              <h3 className="mt-8 text-xl leading-7" style={{ color: itemIsActive ? item.color : undefined }}>
-                {item.title}
-              </h3>
-              <p className="mt-4 text-sm leading-7 text-white/55">{item.text}</p>
-            </button>
-          );
-        })}
-      </div>
-
-      <AnimatePresence mode="wait">
-        {activeItem && (
-          <motion.section
+      <motion.section
+        layout
+        id={`${activeItem.id}-focus-area`}
+        transition={{ layout: { duration: 0.45, ease: [0.22, 1, 0.36, 1] } }}
+        className="relative mt-5 overflow-hidden rounded-3xl border border-white/10 bg-white/[0.035] p-6 md:p-8"
+      >
+        <AnimatePresence mode="popLayout" initial={false}>
+          <motion.div
             key={activeItem.id}
-            id={`${activeItem.id}-focus-area`}
-            initial={{ opacity: 0, height: 0, y: 14 }}
-            animate={{ opacity: 1, height: "auto", y: 0 }}
-            exit={{ opacity: 0, height: 0, y: -8 }}
-            transition={{ duration: 0.25, ease: "easeOut" }}
-            className="mt-5 overflow-hidden rounded-3xl border border-white/10 bg-white/[0.035] p-6 md:p-8"
+            layout
+            initial={{ opacity: 0, x: 18, filter: "blur(8px)" }}
+            animate={{ opacity: 1, x: 0, filter: "blur(0px)" }}
+            exit={{ opacity: 0, x: -18, filter: "blur(8px)" }}
+            transition={{ duration: 0.42, ease: [0.22, 1, 0.36, 1] }}
+            className="w-full"
           >
             <div className="grid gap-8 lg:grid-cols-[0.9fr_1.1fr]">
               <div>
-                <p className="text-[10px] uppercase tracking-[0.28em]" style={{ color: activeItem.color }}>
-                  Focus Area
-                </p>
+                <p className="text-[10px] uppercase tracking-[0.28em]" style={{ color: activeItem.color }}>Discipline</p>
                 <h3 className="mt-4 max-w-2xl text-3xl leading-tight md:text-5xl">{activeItem.title}</h3>
                 <p className="mt-6 text-base leading-8 text-white/62">{activeItem.impact}</p>
               </div>
 
               <div className="grid gap-3">
-                {activeItem.branches.map((branch, index) => (
-                  <div key={branch} className="flex items-center gap-4 rounded-2xl border border-white/10 bg-black/30 p-4">
-                    <span
-                      className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-white/10 text-xs"
-                      style={{ color: activeItem.color }}
-                    >
-                      {index + 1}
-                    </span>
-                    <p className="text-sm leading-6 text-white/70">{branch}</p>
+                {activeItem.branches.map((branch) => (
+                  <div key={branch} className="rounded-2xl border border-white/10 bg-black/30 p-4">
+                    <p className="text-sm leading-6" style={{ color: activeItem.color }}>
+                      {branch}
+                    </p>
                   </div>
                 ))}
               </div>
             </div>
-
-            <div className="mt-8 flex flex-wrap items-center gap-2">
-              {activeItem.method.map((step, index) => (
-                <React.Fragment key={step}>
-                  <span className="rounded-full border border-white/10 bg-black/30 px-4 py-2 text-sm text-white/70">{step}</span>
-                  {index < activeItem.method.length - 1 && <span className="text-white/25">-&gt;</span>}
-                </React.Fragment>
-              ))}
-            </div>
-          </motion.section>
-        )}
-      </AnimatePresence>
+          </motion.div>
+        </AnimatePresence>
+      </motion.section>
     </section>
+  );
+}
+
+function FocusAreaPill({ items, activeItemId, onSelectItem }) {
+  return (
+    <div className="section-liquid-pill focus-area-pill-shell sticky top-[5.5rem] z-30 mx-auto mt-10 w-full max-w-[320px] border border-white/10 px-3 py-3" aria-label="Discipline navigation">
+      <div className="grid grid-cols-4 gap-2">
+        {items.map((item, index) => {
+          const Icon = item.icon;
+          const active = activeItemId === item.id;
+
+          return (
+            <button
+              key={item.id}
+              type="button"
+              onClick={() => onSelectItem(item.id)}
+              className={`focus-area-pill-point flex items-center justify-center border transition ${
+                active ? "border-white/35 text-white" : "border-white/10 text-white/54"
+              }`}
+              style={{
+                "--focus-color": item.color,
+                boxShadow: active ? `0 0 28px ${item.color}44` : "none",
+              }}
+              aria-pressed={active}
+              aria-label={`${index + 1}. ${item.title}`}
+            >
+              <span className="focus-area-pill-icon flex items-center justify-center rounded-full" style={{ backgroundColor: active ? `${item.color}18` : "rgba(255,255,255,0.04)" }}>
+                <Icon className="h-4 w-4" style={{ color: active ? item.color : "currentColor" }} />
+              </span>
+            </button>
+          );
+        })}
+      </div>
+    </div>
   );
 }
 
 function SevenElementLine({ activeStage, expandedStage, onSelectStage, onSelectRole }) {
   const activeIndex = stages.findIndex((stage) => stage.id === activeStage.id);
   const progress = `${(activeIndex / (stages.length - 1)) * 100}%`;
+  const showMiniJourney = Boolean(expandedStage);
 
   return (
-    <section id="line" className="relative overflow-hidden border-t border-white/10 px-6 py-24 md:px-12 lg:px-20">
+    <section id="line" className="relative border-t border-white/10 px-6 py-24 md:px-12 lg:px-20">
       <GridGlow color={activeStage.color} />
       <div className="relative z-10">
         <p className="text-[10px] uppercase tracking-[0.35em] text-white/35">My Journey</p>
-        <h2 className="mt-4 text-5xl leading-tight md:text-7xl">The tree becomes a line.</h2>
-        <p className="mt-5 max-w-2xl text-base leading-8 text-white/60">
-          All seven top-level tree elements are preserved here as connected points. The line simply replaces branching navigation.
-        </p>
       </div>
 
-      <div className="relative z-10 mt-20">
+      {showMiniJourney && <MiniJourneyBar activeStage={activeStage} onSelectStage={onSelectStage} />}
+
+      <div className={`relative z-10 mt-20 ${expandedStage ? "hidden" : "block"}`}>
         <div className="absolute left-4 right-4 top-[42px] hidden h-px bg-white/12 md:block" />
         <motion.div className="absolute left-4 top-[42px] hidden h-px bg-white md:block" animate={{ width: progress }} transition={{ duration: 0.5 }} />
 
@@ -811,18 +842,51 @@ function SevenElementLine({ activeStage, expandedStage, onSelectStage, onSelectR
         {expandedStage ? (
           <StageRoleStrip key={expandedStage.id} stage={expandedStage} onSelectRole={onSelectRole} />
         ) : (
-          <motion.p
-            key="closed"
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -8 }}
-            className="relative z-10 mt-10 max-w-2xl text-sm leading-7 text-white/45"
-          >
-            Select an element to reveal its roles below the line.
-          </motion.p>
+          null
         )}
       </AnimatePresence>
     </section>
+  );
+}
+
+function MiniJourneyBar({ activeStage, onSelectStage }) {
+  return (
+    <div
+      className="section-liquid-pill mini-journey-shell sticky top-[5.5rem] z-30 mx-auto mt-10 w-full max-w-[430px] border border-white/10 px-3 py-3"
+      aria-label="Mini journey navigation"
+    >
+      <div className="mini-journey-track grid grid-cols-7 gap-1">
+        {stages.map((stage, index) => {
+          const Icon = getStageIcon(stage);
+          const active = activeStage.id === stage.id;
+          return (
+            <button
+              key={stage.id}
+              type="button"
+              onClick={() => onSelectStage(stage)}
+              className={`mini-journey-point flex items-center justify-center border transition ${
+                active ? "border-white/35 text-white" : "border-white/10 text-white/54"
+              }`}
+              style={{
+                "--stage-color": stage.color,
+                boxShadow: active ? `0 0 28px ${stage.color}44` : "none",
+              }}
+              aria-pressed={active}
+              aria-label={`${index + 1}. ${stage.title}`}
+            >
+              <span
+                className="mini-journey-icon flex items-center justify-center rounded-full"
+                style={{
+                  backgroundColor: active ? `${stage.color}18` : "rgba(255,255,255,0.04)",
+                }}
+              >
+                <Icon className="h-4 w-4" style={{ color: active ? stage.color : "currentColor" }} />
+              </span>
+            </button>
+          );
+        })}
+      </div>
+    </div>
   );
 }
 
@@ -1189,7 +1253,7 @@ function ProfessorBlock({ professor }) {
           <ProfessorAvatar professor={safeProfessor} />
           <div>
             <p className="text-xl text-white">{safeProfessor.name || "Professor name to be added"}</p>
-            <p className="mt-2 text-sm leading-6 text-white/50">Headshot space, official profile, and LinkedIn for this class.</p>
+            <p className="mt-2 text-sm leading-6 text-white/50">Headshot and links for this class.</p>
           </div>
         </div>
         <div className="flex flex-wrap gap-2">
@@ -1252,7 +1316,7 @@ function ResourceLinks({ links }) {
 
   return (
     <div className="mt-8 rounded-3xl border border-white/10 bg-white/[0.035] p-6">
-      <p className="text-sm uppercase tracking-[0.2em] text-white/35">Course and Framework Links</p>
+      <p className="text-sm uppercase tracking-[0.2em] text-white/35">Links</p>
       <div className="mt-5 flex flex-wrap gap-2">
         {safeLinks.map(([label, url]) => (
           <a
@@ -1314,7 +1378,7 @@ function ProjectDrawer({ item, onClose }) {
   const mediaUrl = typeof item.media === "string" ? item.media : "";
   const youtubeEmbedUrl = getYouTubeEmbedUrl(mediaUrl);
   const hasMediaLink = mediaUrl.startsWith("http");
-  const mediaText = item.mediaCaption || item.media || "Add a photo, short video, artifact image, or recreated visual for this project.";
+  const mediaText = item.mediaCaption || item.media || "Add a photo, video, artifact, or visual.";
 
   return (
     <motion.div className="fixed inset-0 z-[90] bg-black/70 backdrop-blur-sm" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
@@ -1368,11 +1432,11 @@ function ProjectDrawer({ item, onClose }) {
                   <div className="flex h-14 w-14 items-center justify-center rounded-2xl border border-white/10 bg-white/[0.035]">
                     <Play className="h-6 w-6" style={{ color: item.stage.color }} />
                   </div>
-                  <h3 className="mt-3 text-3xl leading-tight">Visual evidence lives here.</h3>
+                  <h3 className="mt-3 text-3xl leading-tight">Visual evidence</h3>
                 </>
               )}
               <p className="mt-8 text-[10px] uppercase tracking-[0.26em] text-white/35">
-                {hasGallery ? "Image Slideshow" : youtubeEmbedUrl ? "Video Evidence" : hasSchoolLogo ? "Course Institution" : "Photo / Video Placeholder"}
+                {hasGallery ? "Image Slideshow" : youtubeEmbedUrl ? "Video Evidence" : hasSchoolLogo ? "Course Institution" : "Media Placeholder"}
               </p>
               <p className="mt-5 text-sm leading-7 text-white/58">{mediaText}</p>
               {hasMediaLink && (
@@ -1408,7 +1472,7 @@ function ProjectDrawer({ item, onClose }) {
             <ResourceLinks links={item.resourceLinks} />
 
             <div className="mt-8 rounded-3xl border border-white/10 bg-white/[0.035] p-6">
-              <p className="text-sm uppercase tracking-[0.2em] text-white/35">How this fits the line</p>
+              <p className="text-sm uppercase tracking-[0.2em] text-white/35">Where it fits</p>
               <div className="mt-5 space-y-4 text-sm leading-7 text-white/58">
                 <p><span className="text-white">Element:</span> {item.stage.description}</p>
                 <p><span className="text-white">Role:</span> {item.role.opening}</p>
@@ -1458,7 +1522,7 @@ function Contact() {
           <div>
             <h2 className="max-w-3xl text-5xl leading-tight md:text-7xl">Let's build together.</h2>
             <p className="mt-6 max-w-2xl text-base leading-8 text-white/60">
-              For innovation ecosystem research, strategy consulting, product design, program advisory, policy advocacy, storytelling, and collaborations.
+              For innovation ecosystem research, strategy consulting, product design, program advisory, policy advocacy, storytelling, and collaboration.
             </p>
           </div>
           <div className="flex flex-wrap gap-3 lg:justify-end">

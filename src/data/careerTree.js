@@ -16,7 +16,7 @@ const classProfessorPlaceholder = {
 const projectPlaceholders = (titles) =>
   titles.map((title) => ({
     title,
-    line: "Placeholder for final story text, evidence, links, references, and photo/video.",
+    line: "Story, evidence, links, and media will be added here.",
     ...(projectEnrichment[title] || {}),
     title,
   }));
@@ -28,7 +28,7 @@ const classPlaceholders = (titles) =>
     return {
       title,
       type: "class",
-      line: "Class taken during the Global Exposure phase. Add learning notes, professor details, links, and reflections here.",
+      line: "Class from the Harvard and MIT phase. Learning notes, professor details, and reflections will be added here.",
       professor: classProfessorPlaceholder,
       ...courseResearch,
       professor: {
@@ -75,7 +75,7 @@ export const stages = [
     color: "#0197F6",
     icon: "roots",
     description:
-      "A journey from childhood constraint to creative agency where tinkering, identity, agency, and education first began to take shape.",
+      "Where childhood constraint, tinkering, identity, agency, and education first took shape.",
     roles: ["origins", "identity", "agency", "education"],
   },
   {
@@ -85,7 +85,7 @@ export const stages = [
     color: "#8EE968",
     icon: "graduation",
     description:
-      "The first professional stage where making, teaching, coaching, and execution became visible forms of work.",
+      "Where making, teaching, coaching, and execution became visible work.",
     roles: ["innovation-coach", "makerspace-builder", "stem-educator", "project-manager"],
   },
   {
@@ -95,7 +95,7 @@ export const stages = [
     color: "#F4DA2D",
     icon: "wrench",
     description:
-      "The shift from delivering activities to leading complex public programs, operations, partners, and learning systems.",
+      "The shift from activities to public programs, operations, partners, and learning systems.",
     roles: ["federal-grant-operations", "program-management", "stakeholder-orchestration", "learning-design"],
   },
   {
@@ -105,7 +105,7 @@ export const stages = [
     color: "#FE9920",
     icon: "network",
     description:
-      "Where innovation moved from projects into strategy, advocacy, public institutions, and government systems.",
+      "Where innovation moved from projects into strategy, advocacy, institutions, and government systems.",
     roles: ["innovation-lead", "policy-design-advocacy", "strategic-ideation", "government-relations"],
   },
   {
@@ -125,7 +125,7 @@ export const stages = [
     color: "#7F00FF",
     icon: "orbit",
     description:
-      "The canopy of the work, where ecosystems, strategy, policy entrepreneurship, and storytelling become one connected practice.",
+      "Where ecosystems, strategy, policy entrepreneurship, and storytelling become one connected practice.",
     roles: ["ecosystem-architect", "strategic-advisor", "policy-entrepreneur", "author-storyteller"],
   },
   {
@@ -135,7 +135,7 @@ export const stages = [
     color: "#D946EF",
     icon: "sparkles",
     description:
-      "The continuing seed of the journey, where expertise returns to humility, inquiry, and service.",
+      "Where expertise returns to humility, inquiry, and service.",
     roles: ["seeker"],
   },
 ];
@@ -433,7 +433,7 @@ export const defaultRoleContent = {
     projects: [
       {
         title: "The Bombay Boston Bike",
-        line: "A visual story of repair, movement, home-making, and a bicycle clock between Bombay and Boston. Description text will be added later.",
+        line: "A visual story of repair, movement, home-making, and a bicycle clock between Bombay and Boston.",
         context: "Global Exposure phase in Cambridge and Boston.",
         myRole: "Maker, repairer, rider, and storyteller.",
         work: "Restored and reused bicycle parts, then transformed the frame into a wall clock and living-space artifact.",
