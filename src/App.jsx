@@ -23,7 +23,7 @@ import {
   Wrench,
   X,
 } from "lucide-react";
-import { defaultRoleContent, roleData, stages } from "./data/careerTree.js";
+import { defaultRoleContent, roleData, roleOrder, stages } from "./data/careerTree.js";
 import { roleEnrichment } from "./data/excelEnrichment.js";
 import aboutStageBackground from "./assets/media/about/ronak-stage-background.jpg";
 import rjLogo from "./assets/media/brand/rj-logo.png";
@@ -284,11 +284,19 @@ export default function RonakLinearWebsite() {
           <RolePopup
             key={`role-${openRole.id}`}
             role={openRole}
+            onSelectRole={selectRole}
             onSelectProject={setActiveProject}
             onClose={() => setOpenRole(null)}
           />
         )}
-        {activeProject && <ProjectDrawer key={`project-${activeProject.role.id}-${activeProject.title}`} item={activeProject} onClose={() => setActiveProject(null)} />}
+        {activeProject && (
+          <ProjectDrawer
+            key={`project-${activeProject.role.id}-${activeProject.title}`}
+            item={activeProject}
+            onSelectProject={setActiveProject}
+            onClose={() => setActiveProject(null)}
+          />
+        )}
       </AnimatePresence>
     </div>
   );
@@ -362,6 +370,46 @@ function getStageIcon(stage) {
 
 function getRoleIcon(role) {
   return roleIconMap[role.id] || getStageIcon(getStageForRole(role));
+}
+
+function JourneyBreadcrumb({ items }) {
+  return (
+    <nav aria-label="Journey path" className="flex flex-wrap items-center gap-2 text-[11px] uppercase tracking-[0.22em] text-white/35">
+      {items.map((item, index) => (
+        <React.Fragment key={`${item}-${index}`}>
+          {index > 0 && <ChevronRight className="h-3 w-3 text-white/24" />}
+          <span className={index === items.length - 1 ? "text-white/76" : ""}>{item}</span>
+        </React.Fragment>
+      ))}
+    </nav>
+  );
+}
+
+function LinearNavigation({ previousLabel, nextLabel, onPrevious, onNext }) {
+  if (!onPrevious && !onNext) return null;
+
+  return (
+    <div className="mt-8 flex flex-wrap items-center justify-between gap-3 border-t border-white/10 pt-5">
+      <button
+        type="button"
+        onClick={onPrevious}
+        disabled={!onPrevious}
+        className="inline-flex items-center gap-2 rounded-full border border-white/10 px-4 py-2 text-sm text-white/62 transition hover:border-white/30 hover:text-white disabled:cursor-not-allowed disabled:opacity-30"
+      >
+        <ChevronRight className="h-4 w-4 rotate-180" />
+        {previousLabel || "Previous"}
+      </button>
+      <button
+        type="button"
+        onClick={onNext}
+        disabled={!onNext}
+        className="inline-flex items-center gap-2 rounded-full border border-white/10 px-4 py-2 text-sm text-white/62 transition hover:border-white/30 hover:text-white disabled:cursor-not-allowed disabled:opacity-30"
+      >
+        {nextLabel || "Next"}
+        <ChevronRight className="h-4 w-4" />
+      </button>
+    </div>
+  );
 }
 
 function ThemeToggle({ theme, onThemeChange }) {
@@ -931,7 +979,7 @@ function StageRoleStrip({ stage, onSelectRole }) {
     >
       <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
         <div>
-          <p className="text-[10px] uppercase tracking-[0.3em] text-white/35">Roles inside {stage.title}</p>
+          <p className="text-[10px] uppercase tracking-[0.3em] text-white/35">My Journey</p>
           <h3 className="mt-2 text-3xl">{stage.title}</h3>
         </div>
         <p className="max-w-xl text-sm leading-7 text-white/50">{stage.description}</p>
@@ -1000,8 +1048,11 @@ function StageRoleStrip({ stage, onSelectRole }) {
   );
 }
 
-function RolePopup({ role, onSelectProject, onClose }) {
+function RolePopup({ role, onSelectRole, onSelectProject, onClose }) {
   const stage = getStageForRole(role);
+  const currentIndex = roleOrder.indexOf(role.id);
+  const previousRole = currentIndex > 0 ? getRole(roleOrder[currentIndex - 1]) : null;
+  const nextRole = currentIndex >= 0 && currentIndex < roleOrder.length - 1 ? getRole(roleOrder[currentIndex + 1]) : null;
 
   return (
     <motion.div
@@ -1023,75 +1074,26 @@ function RolePopup({ role, onSelectProject, onClose }) {
         onClick={(event) => event.stopPropagation()}
       >
         <div className="mb-6 flex items-start justify-between gap-4">
-          <div>
-            <p className="text-[10px] uppercase tracking-[0.3em] text-white/35">{stage.title}</p>
-            <h2 className="mt-2 text-3xl md:text-5xl">{role.title}</h2>
-          </div>
+          <JourneyBreadcrumb items={["My Journey", stage.title, role.title]} />
           <button onClick={onClose} aria-label="Close role details" className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-white/10 text-white/60 hover:text-white">
             <X className="h-5 w-5" />
           </button>
         </div>
 
         <RolePanel role={role} onSelectProject={onSelectProject} />
+        <LinearNavigation
+          previousLabel={previousRole?.title}
+          nextLabel={nextRole?.title}
+          onPrevious={previousRole ? () => onSelectRole(previousRole.id) : null}
+          onNext={nextRole ? () => onSelectRole(nextRole.id) : null}
+        />
       </motion.article>
-    </motion.div>
-  );
-}
-
-function StagePanel({ stage, activeRole, onSelectRole }) {
-  const Icon = getStageIcon(stage);
-
-  return (
-    <motion.div
-      key={stage.id}
-      initial={{ opacity: 0, y: 14 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.35 }}
-      className="rounded-[2rem] border border-white/10 bg-white/[0.035] p-7"
-    >
-      <div className="flex items-start justify-between gap-6">
-        <div>
-          <p className="text-[10px] uppercase tracking-[0.25em] text-white/35">Selected Element</p>
-          <h3 className="mt-3 text-4xl">{stage.title}</h3>
-        </div>
-        <div className="rounded-2xl border border-white/10 bg-black/35 p-4">
-          <Icon className="h-8 w-8" style={{ color: stage.color }} />
-        </div>
-      </div>
-
-      <p className="mt-6 text-base leading-8 text-white/62">{stage.description}</p>
-
-      <div className="mt-8">
-        <p className="text-xs uppercase tracking-[0.22em] text-white/35">Roles inside this element</p>
-        <div className="mt-4 grid gap-2">
-          {stage.roles.map((roleId) => {
-            const role = getRole(roleId);
-            const RoleIcon = getRoleIcon(role);
-            const selected = activeRole.id === role.id;
-            return (
-              <button
-                key={role.id}
-                onClick={() => onSelectRole(role.id)}
-                className="flex items-center justify-between gap-4 rounded-2xl border border-white/10 bg-black/35 p-4 text-left transition hover:border-white/30"
-                style={{ boxShadow: selected ? `0 0 24px ${stage.color}33` : "none" }}
-              >
-                <span className="flex min-w-0 items-center gap-3">
-                  <RoleIcon className="h-5 w-5 shrink-0" style={{ color: stage.color }} />
-                  <span className="text-sm text-white/72">{role.title}</span>
-                </span>
-                <ChevronRight className="h-4 w-4 shrink-0 text-white/35" />
-              </button>
-            );
-          })}
-        </div>
-      </div>
     </motion.div>
   );
 }
 
 function RolePanel({ role, onSelectProject }) {
   const stage = getStageForRole(role);
-  const RoleIcon = getRoleIcon(role);
   const hasGallery = Array.isArray(role.gallery) && role.gallery.length > 0;
 
   return (
@@ -1102,25 +1104,13 @@ function RolePanel({ role, onSelectProject }) {
       transition={{ duration: 0.35, delay: 0.05 }}
       className="rounded-[2rem] border border-white/10 bg-white/[0.035] p-7"
     >
-      <div className="flex items-start justify-between gap-6">
-        <div>
-          <p className="text-[10px] uppercase tracking-[0.25em] text-white/35">{stage.title}</p>
-          <h3 className="mt-3 text-4xl">{role.title}</h3>
-        </div>
-        <div className="rounded-2xl border border-white/10 bg-black/35 p-4">
-          <RoleIcon className="h-8 w-8" style={{ color: stage.color }} />
-        </div>
-      </div>
-
-      <p className="mt-6 text-base leading-8 text-white/62">{role.opening}</p>
-
       {hasGallery && (
-        <div className="mt-8">
+        <div>
           <ImageSlideshow images={role.gallery} title={role.title} />
         </div>
       )}
 
-      <div className="mt-8">
+      <div className={hasGallery ? "mt-8" : ""}>
         <div>
           <p className="text-xs uppercase tracking-[0.22em] text-white/35">Key Competencies and Skillsets</p>
           <div className="mt-4 flex flex-wrap gap-2">
@@ -1394,10 +1384,18 @@ function getYouTubeEmbedUrl(url) {
   }
 }
 
-function ProjectDrawer({ item, onClose }) {
+function ProjectDrawer({ item, onSelectProject, onClose }) {
   const hasGallery = Array.isArray(item.gallery) && item.gallery.length > 0;
   const hasProfessor = item.type === "class" || Boolean(item.professor);
   const hasSchoolLogo = item.type === "class" && Boolean(item.schoolLogo);
+  const projects = item.role.projects || [];
+  const currentProjectIndex = projects.findIndex((project) => project.title === item.title);
+  const previousProject = currentProjectIndex > 0 ? projects[currentProjectIndex - 1] : null;
+  const nextProject = currentProjectIndex >= 0 && currentProjectIndex < projects.length - 1 ? projects[currentProjectIndex + 1] : null;
+  const selectProject = (project) => {
+    if (!project) return;
+    onSelectProject({ ...project, role: item.role, stage: item.stage });
+  };
   const storyBlocks = [
     ["My Role", item.myRole],
     ["Work", item.work],
@@ -1422,11 +1420,8 @@ function ProjectDrawer({ item, onClose }) {
         <div className="flex items-start justify-between gap-4">
           <div className="flex min-w-0 flex-col gap-4 md:flex-row md:items-start">
             {hasSchoolLogo && <SchoolLogo logo={item.schoolLogo} school={item.school} compact />}
-            <div>
-            <p className="text-[10px] uppercase tracking-[0.25em] text-white/35">
-              {item.stage.title} / {item.role.title}
-            </p>
-            <h2 className="mt-3 text-4xl leading-tight md:text-5xl">{item.title}</h2>
+            <div className="min-w-0">
+              <JourneyBreadcrumb items={["My Journey", item.stage.title, item.role.title, item.title]} />
               {item.sourceTitle && item.sourceTitle !== item.title && (
                 <p className="mt-3 text-sm leading-6 text-white/42">Workbook title: {item.sourceTitle}</p>
               )}
@@ -1476,15 +1471,16 @@ function ProjectDrawer({ item, onClose }) {
               )}
             </div>
 
-            <div className="mt-8 flex flex-wrap gap-2">
-              <span className="rounded-full border border-white/10 bg-white/[0.035] px-4 py-2 text-xs text-white/62">{item.stage.title}</span>
-              <span className="rounded-full border border-white/10 bg-white/[0.035] px-4 py-2 text-xs text-white/62">{item.role.title}</span>
-            </div>
+            <LinearNavigation
+              previousLabel={previousProject?.title}
+              nextLabel={nextProject?.title}
+              onPrevious={previousProject ? () => selectProject(previousProject) : null}
+              onNext={nextProject ? () => selectProject(nextProject) : null}
+            />
           </div>
 
           <div>
             <div className="h-1 w-24 rounded-full" style={{ background: item.stage.color }} />
-            <p className="mt-7 text-base leading-8 text-white/62">{item.line}</p>
 
             {storyBlocks.length > 0 && (
               <div className="mt-8 grid gap-3">
@@ -1500,15 +1496,6 @@ function ProjectDrawer({ item, onClose }) {
             {hasProfessor && <ProfessorBlock professor={item.professor} />}
 
             <ResourceLinks links={item.resourceLinks} />
-
-            <div className="mt-8 rounded-3xl border border-white/10 bg-white/[0.035] p-6">
-              <p className="text-sm uppercase tracking-[0.2em] text-white/35">Where it fits</p>
-              <div className="mt-5 space-y-4 text-sm leading-7 text-white/58">
-                <p><span className="text-white">Element:</span> {item.stage.description}</p>
-                <p><span className="text-white">Role:</span> {item.role.opening}</p>
-                <p><span className="text-white">Reflection:</span> {item.role.reflection}</p>
-              </div>
-            </div>
           </div>
         </div>
       </motion.aside>
