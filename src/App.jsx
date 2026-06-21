@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, animate, motion, useMotionValue, useSpring, useTransform } from "framer-motion";
 import {
   BookOpen,
   BrainCircuit,
@@ -13,7 +13,6 @@ import {
   Landmark,
   Lightbulb,
   Mail,
-  Menu,
   MessageSquareQuote,
   Network,
   Orbit,
@@ -95,12 +94,21 @@ function SubstackIcon({ className }) {
 
 const stageIconMap = {
   roots: RootsIcon,
-  graduation: GraduationCap,
-  wrench: Wrench,
-  network: Network,
+  graduation: Hammer,
+  wrench: DraftingCompass,
+  network: Landmark,
   brain: BrainCircuit,
   orbit: Orbit,
-  sparkles: Sparkles,
+  sparkles: Compass,
+};
+
+const DOCK_SCALE = 1.9;
+const DOCK_DISTANCE = 110;
+const DOCK_NUDGE = 26;
+const DOCK_SPRING = {
+  mass: 0.1,
+  stiffness: 170,
+  damping: 12,
 };
 
 const roleIconMap = {
@@ -357,30 +365,20 @@ function getRoleIcon(role) {
 }
 
 function ThemeToggle({ theme, onThemeChange }) {
-  const options = [
-    { id: "dark", label: "Dark mode" },
-    { id: "light", label: "Light mode" },
-  ];
+  const nextTheme = theme === "dark" ? "light" : "dark";
+  const label = theme === "dark" ? "Switch to light mode" : "Switch to dark mode";
 
   return (
-    <div className="theme-toggle theme-yin-yang" aria-label="Theme options" role="group">
-      {options.map((option) => {
-        const active = theme === option.id;
-
-        return (
-          <button
-            key={option.id}
-            type="button"
-            onClick={() => onThemeChange(option.id)}
-            className={`theme-yin-yang-option theme-yin-yang-${option.id}${active ? " is-active" : ""}`}
-            aria-label={option.label}
-            aria-pressed={active}
-          >
-            <span aria-hidden="true" className="theme-yin-yang-dot" />
-          </button>
-        );
-      })}
-    </div>
+    <button
+      type="button"
+      onClick={() => onThemeChange(nextTheme)}
+      aria-label={label}
+      title={label}
+      className={`theme-orbit-toggle ${theme === "light" ? "is-light" : "is-dark"}`}
+      aria-pressed={theme === "light"}
+    >
+      <span aria-hidden="true" className="theme-orbit-dot" />
+    </button>
   );
 }
 
@@ -479,30 +477,85 @@ function IntroGate({ onComplete }) {
   );
 }
 
-function Header({ theme, onThemeChange }) {
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const go = (id) => document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
-  const navItems = [
-    ["About", "about"],
-    ["What I Do", "work"],
-    ["My Journey", "line"],
-    ["Contact", "contact"],
+function HeaderIconButton({ label, onClick, children }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-label={label}
+      title={label}
+      className="header-icon-button flex items-center justify-center rounded-full border border-white/10 bg-black/25 text-white/68 transition hover:border-white/30 hover:bg-white/10 hover:text-white"
+    >
+      {children}
+    </button>
+  );
+}
+
+function HeaderWorkPill({ onClick }) {
+  const workIcons = [
+    { icon: ScrollText, color: "#7F00FF", label: "Innovation Policy Ideation" },
+    { icon: DraftingCompass, color: "#0197F6", label: "Program Design and Strategy" },
+    { icon: Bot, color: "#8EE968", label: "Education and Future of Work" },
+    { icon: MessageSquareQuote, color: "#FE9920", label: "Narrative Storytelling" },
   ];
+
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-label="What I Do"
+      title="What I Do"
+      className="header-work-pill flex items-center rounded-full border border-white/10 bg-black/25 text-white/68 transition hover:border-white/30 hover:bg-white/10 hover:text-white"
+    >
+      {workIcons.map((item) => {
+        const Icon = item.icon;
+
+        return (
+          <span key={item.label} className="header-work-dot flex items-center justify-center rounded-full" title={item.label}>
+            <Icon className="h-4 w-4" style={{ color: item.color }} />
+          </span>
+        );
+      })}
+    </button>
+  );
+}
+
+function HeaderJourneyPill({ onClick }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-label="My Journey"
+      title="My Journey"
+      className="header-journey-pill flex items-center rounded-full border border-white/10 bg-black/25 text-white/68 transition hover:border-white/30 hover:bg-white/10 hover:text-white"
+    >
+      {stages.map((stage) => {
+        const Icon = getStageIcon(stage);
+
+        return (
+          <span key={stage.id} className="header-journey-dot flex items-center justify-center rounded-full" title={stage.title}>
+            <Icon className="h-4 w-4" style={{ color: stage.color }} />
+          </span>
+        );
+      })}
+    </button>
+  );
+}
+
+function Header({ theme, onThemeChange }) {
+  const go = (id) => document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
   const goToSection = (id) => {
     go(id);
-    setMobileMenuOpen(false);
   };
   const { progress, viewportWidth } = useHeaderMorphProgress();
   const easedProgress = smoothstep(progress);
-  const pillWidth = viewportWidth >= 768 ? Math.min(760, viewportWidth - 40) : viewportWidth - 24;
+  const pillWidth = viewportWidth >= 768 ? Math.min(760, viewportWidth - 40) : viewportWidth - 8;
   const width = viewportWidth + (pillWidth - viewportWidth) * easedProgress;
   const left = (viewportWidth - width) / 2;
-  const logoHeight = (viewportWidth >= 768 ? 56 : 48) - (viewportWidth >= 768 ? 20 : 14) * easedProgress;
-  const verticalPadding = 16 - 6 * easedProgress;
-  const horizontalPadding = 24 - 8 * easedProgress;
+  const verticalPadding = (viewportWidth >= 768 ? 16 : 12) - (viewportWidth >= 768 ? 6 : 3) * easedProgress;
+  const horizontalPadding = (viewportWidth >= 768 ? 24 : 12) - (viewportWidth >= 768 ? 8 : 2) * easedProgress;
   const backgroundOpacity = 0.005 + 0.035 * easedProgress;
   const borderOpacity = 0.22 + 0.16 * easedProgress;
-  const themeToggleReady = progress >= 0.98;
   const navStyle = {
     "--header-glass-strength": easedProgress,
     top: `${16 * easedProgress}px`,
@@ -531,71 +584,19 @@ function Header({ theme, onThemeChange }) {
       style={navStyle}
       data-header-progress={progress.toFixed(3)}
     >
-      <button onClick={() => goToSection("about")} className="flex items-center" aria-label="Ronak VJ home">
-        <img src={rjLogo} alt="Ronak VJ" className="brand-logo w-auto" style={{ height: `${logoHeight}px` }} />
+      <button onClick={() => goToSection("about")} className="header-logo-button flex items-center justify-center rounded-full border border-white/10 bg-black/25" aria-label="Ronak VJ home" title="About">
+        <img src={rjLogo} alt="Ronak VJ" className="brand-logo header-logo-mark w-auto" />
       </button>
-      <div className="flex items-center gap-4">
-        <div
-          className="hidden items-center text-xs uppercase tracking-[0.18em] text-white/55 md:flex"
-          style={{ columnGap: `${32 - 12 * easedProgress}px` }}
-        >
-          {navItems.map(([label, id]) => (
-            <button key={id} onClick={() => goToSection(id)} className="hover:text-white">
-              {label}
-            </button>
-          ))}
+      <div className="header-nav-cluster flex items-center" style={{ gap: `${10 - 4 * easedProgress}px` }}>
+        <div className="header-primary-icons flex items-center" style={{ gap: `${8 - 3 * easedProgress}px` }}>
+          <HeaderWorkPill onClick={() => goToSection("work")} />
+          <HeaderJourneyPill onClick={() => goToSection("line")} />
+          <HeaderIconButton label="Contact" onClick={() => goToSection("contact")}>
+            <Mail className="h-5 w-5" />
+          </HeaderIconButton>
         </div>
-        <AnimatePresence initial={false}>
-          {themeToggleReady && (
-            <motion.div
-              key="theme-toggle"
-              initial={{ opacity: 0, scale: 0.86, width: 0 }}
-              animate={{ opacity: 1, scale: 1, width: "auto" }}
-              exit={{ opacity: 0, scale: 0.86, width: 0 }}
-              transition={{ duration: 0.22, ease: "easeOut" }}
-              className="overflow-hidden"
-            >
-              <ThemeToggle theme={theme} onThemeChange={onThemeChange} />
-            </motion.div>
-          )}
-        </AnimatePresence>
-        <button
-          type="button"
-          onClick={() => setMobileMenuOpen((open) => !open)}
-          className="flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-black/30 text-white/70 md:hidden"
-          aria-label="Open navigation menu"
-          aria-expanded={mobileMenuOpen}
-        >
-          {mobileMenuOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
-        </button>
+        <ThemeToggle theme={theme} onThemeChange={onThemeChange} />
       </div>
-
-      <AnimatePresence>
-        {mobileMenuOpen && (
-          <motion.div
-            initial={{ opacity: 0, y: -6, scale: 0.98 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -6, scale: 0.98 }}
-            transition={{ duration: 0.18 }}
-            className="absolute left-0 right-0 top-[calc(100%+0.5rem)] overflow-hidden rounded-[1.5rem] border border-white/10 bg-[#050505]/94 p-2 shadow-2xl backdrop-blur-md md:hidden"
-            style={{
-              backgroundColor:
-                theme === "light" ? "rgba(247, 245, 239, 0.96)" : "rgba(5, 5, 5, 0.94)",
-            }}
-          >
-            {navItems.map(([label, id]) => (
-              <button
-                key={id}
-                type="button"
-                onClick={() => goToSection(id)}
-                className="block w-full rounded-2xl px-4 py-3 text-left text-sm text-white/72 hover:bg-white/5 hover:text-white"
-              >
-                {label}
-              </button>
-            ))}
-          </motion.div>
-        )}
-      </AnimatePresence>
     </motion.nav>
   );
 }
@@ -789,8 +790,6 @@ function FocusAreaPill({ items, activeItemId, onSelectItem }) {
 }
 
 function SevenElementLine({ activeStage, expandedStage, onSelectStage, onSelectRole }) {
-  const activeIndex = stages.findIndex((stage) => stage.id === activeStage.id);
-  const progress = `${(activeIndex / (stages.length - 1)) * 100}%`;
   const showMiniJourney = Boolean(expandedStage);
 
   return (
@@ -800,42 +799,8 @@ function SevenElementLine({ activeStage, expandedStage, onSelectStage, onSelectR
         <p className="text-[10px] uppercase tracking-[0.35em] text-white/35">My Journey</p>
       </div>
 
-      {showMiniJourney && <MiniJourneyBar activeStage={activeStage} onSelectStage={onSelectStage} />}
-
-      <div className={`relative z-10 mt-20 ${expandedStage ? "hidden" : "block"}`}>
-        <div className="absolute left-4 right-4 top-[42px] hidden h-px bg-white/12 md:block" />
-        <motion.div className="absolute left-4 top-[42px] hidden h-px bg-white md:block" animate={{ width: progress }} transition={{ duration: 0.5 }} />
-
-        <div className="grid gap-6 md:grid-cols-7">
-          {stages.map((stage, index) => {
-            const Icon = getStageIcon(stage);
-            const active = activeStage.id === stage.id;
-            return (
-              <button
-                key={stage.id}
-                onClick={() => onSelectStage(stage)}
-                className="relative rounded-3xl border border-white/10 bg-black/55 p-4 text-left backdrop-blur-md transition hover:border-white/30"
-                style={{ boxShadow: active ? `0 0 38px ${stage.color}44` : "none" }}
-              >
-                <div className="flex items-center gap-3 md:block">
-                  <motion.div
-                    className="flex h-14 w-14 items-center justify-center rounded-2xl border bg-black"
-                    style={{ borderColor: stage.color }}
-                    animate={{ scale: active ? [1, 1.08, 1] : 1 }}
-                    transition={{ duration: 2, repeat: active ? Infinity : 0 }}
-                  >
-                    <Icon className="h-6 w-6" style={{ color: stage.color }} />
-                  </motion.div>
-                  <div className="min-w-0 md:mt-5">
-                    <p className="text-[10px] uppercase tracking-[0.2em] text-white/35">0{index + 1}</p>
-                    <h3 className="mt-1 text-sm leading-5 text-white md:min-h-[40px]">{stage.title}</h3>
-                    <p className="mt-1 text-xs text-white/38">{stage.short}</p>
-                  </div>
-                </div>
-              </button>
-            );
-          })}
-        </div>
+      <div className={`journey-dock-wrap relative z-10 mt-16 ${showMiniJourney ? "is-sticky" : ""}`}>
+        <JourneyDock activeStage={activeStage} onSelectStage={onSelectStage} />
       </div>
 
       <AnimatePresence mode="wait">
@@ -849,44 +814,109 @@ function SevenElementLine({ activeStage, expandedStage, onSelectStage, onSelectR
   );
 }
 
-function MiniJourneyBar({ activeStage, onSelectStage }) {
+function JourneyDock({ activeStage, onSelectStage }) {
+  const mouseLeft = useMotionValue(-Infinity);
+  const mouseRight = useMotionValue(-Infinity);
+  const left = useTransform(mouseLeft, [0, 40], [0, -40]);
+  const right = useTransform(mouseRight, [0, 40], [0, -40]);
+  const leftSpring = useSpring(left, DOCK_SPRING);
+  const rightSpring = useSpring(right, DOCK_SPRING);
+
   return (
-    <div
-      className="section-liquid-pill mini-journey-shell sticky top-[5.5rem] z-30 mx-auto mt-10 w-full max-w-[430px] border border-white/10 px-3 py-3"
-      aria-label="Mini journey navigation"
+    <motion.div
+      className="journey-dock-shell mx-auto"
+      aria-label="Journey navigation"
+      onMouseMove={(event) => {
+        const { left: dockLeft, right: dockRight } = event.currentTarget.getBoundingClientRect();
+        mouseLeft.set(event.clientX - dockLeft);
+        mouseRight.set(dockRight - event.clientX);
+      }}
+      onMouseLeave={() => {
+        mouseLeft.set(-Infinity);
+        mouseRight.set(-Infinity);
+      }}
     >
-      <div className="mini-journey-track grid grid-cols-7 gap-1">
-        {stages.map((stage, index) => {
+      <motion.div
+        aria-hidden="true"
+        className="journey-dock-backdrop"
+        style={{ left: leftSpring, right: rightSpring }}
+      />
+      <div className="journey-dock-track flex items-end justify-center">
+        {stages.map((stage) => {
           const Icon = getStageIcon(stage);
           const active = activeStage.id === stage.id;
           return (
-            <button
+            <JourneyDockButton
               key={stage.id}
-              type="button"
-              onClick={() => onSelectStage(stage)}
-              className={`mini-journey-point flex items-center justify-center border transition ${
-                active ? "border-white/35 text-white" : "border-white/10 text-white/54"
-              }`}
-              style={{
-                "--stage-color": stage.color,
-                boxShadow: active ? `0 0 28px ${stage.color}44` : "none",
-              }}
-              aria-pressed={active}
-              aria-label={`${index + 1}. ${stage.title}`}
-            >
-              <span
-                className="mini-journey-icon flex items-center justify-center rounded-full"
-                style={{
-                  backgroundColor: active ? `${stage.color}18` : "rgba(255,255,255,0.04)",
-                }}
-              >
-                <Icon className="h-4 w-4" style={{ color: active ? stage.color : "currentColor" }} />
-              </span>
-            </button>
+              stage={stage}
+              Icon={Icon}
+              active={active}
+              mouseLeft={mouseLeft}
+              onSelectStage={onSelectStage}
+            />
           );
         })}
       </div>
-    </div>
+    </motion.div>
+  );
+}
+
+function JourneyDockButton({ stage, Icon, active, mouseLeft, onSelectStage }) {
+  const ref = useRef(null);
+  const y = useMotionValue(0);
+  const distance = useTransform(() => {
+    const bounds = ref.current
+      ? { x: ref.current.offsetLeft, width: ref.current.offsetWidth }
+      : { x: 0, width: 0 };
+
+    return mouseLeft.get() - bounds.x - bounds.width / 2;
+  });
+  const scale = useTransform(distance, [-DOCK_DISTANCE, 0, DOCK_DISTANCE], [1, DOCK_SCALE, 1]);
+  const x = useTransform(() => {
+    const d = distance.get();
+
+    if (d === -Infinity) {
+      return 0;
+    }
+
+    if (d < -DOCK_DISTANCE || d > DOCK_DISTANCE) {
+      return Math.sign(d) * -1 * DOCK_NUDGE;
+    }
+
+    return (-d / DOCK_DISTANCE) * DOCK_NUDGE * scale.get();
+  });
+  const scaleSpring = useSpring(scale, DOCK_SPRING);
+  const xSpring = useSpring(x, DOCK_SPRING);
+
+  const handleClick = () => {
+    onSelectStage(stage);
+    animate(y, [0, -34, 0], {
+      repeat: 1,
+      duration: 0.58,
+      ease: [[0, 0, 0.2, 1], [0.8, 0, 1, 1]],
+    });
+  };
+
+  return (
+    <motion.button
+      ref={ref}
+      type="button"
+      onClick={handleClick}
+      className="journey-dock-point"
+      style={{
+        "--stage-color": stage.color,
+        x: xSpring,
+        y,
+        scale: scaleSpring,
+      }}
+      aria-label={stage.title}
+      aria-pressed={active}
+    >
+      <span className="journey-dock-label">{stage.title}</span>
+      <span className="journey-dock-icon">
+        <Icon className="h-6 w-6" style={{ color: stage.color }} />
+      </span>
+    </motion.button>
   );
 }
 
@@ -1525,7 +1555,7 @@ function Contact() {
               For innovation ecosystem research, strategy consulting, product design, program advisory, policy advocacy, storytelling, and collaboration.
             </p>
           </div>
-          <div className="flex flex-wrap gap-3 lg:justify-end">
+          <div className="section-liquid-pill contact-social-pill mx-auto flex w-fit items-center gap-2 border border-white/10 px-3 py-3 lg:mx-0 lg:ml-auto">
             {socialLinks.map((link) => {
               const Icon = link.icon;
               const external = link.href.startsWith("http");
@@ -1538,8 +1568,9 @@ function Contact() {
                   rel={external ? "noreferrer" : undefined}
                   aria-label={link.label}
                   title={link.label}
-                  className="flex h-14 w-14 items-center justify-center rounded-full border border-white/10 bg-black/30 text-white/68 transition hover:-translate-y-0.5 hover:border-white/30 hover:bg-white/10 hover:text-white"
+                  className="contact-social-button flex items-center justify-center rounded-full border border-white/10 bg-black/30 text-white/68 transition hover:border-white/30 hover:bg-white/10 hover:text-white"
                 >
+                  <span className="contact-social-label">{link.label}</span>
                   <Icon className="h-5 w-5" />
                 </a>
               );
